@@ -1,11 +1,10 @@
 import { MoviesProps } from "@/interfaces";
 import { NextApiRequest, NextApiResponse } from "next";
+export default async function handler (request: NextApiRequest, response: NextApiResponse)  {
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "POST") {
-    const { year, page, genre } = req.body;
+  if (request.method === "POST") {
+    const { year, page, genre } = request.body;
     const date = new Date();
-
     const resp = await fetch(
       `https://moviesdatabase.p.rapidapi.com/titles?year=${
         year || date.getFullYear()
@@ -13,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       {
         headers: {
           "x-rapidapi-host": "moviesdatabase.p.rapidapi.com",
-          "x-rapidapi-key": process.env.MOVIE_API_KEY as string,
+          "x-rapidapi-key": `${process.env.MOVIE_API_KEY}`,
         },
       }
     );
@@ -23,9 +22,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const moviesResponse = await resp.json();
     const movies: MoviesProps[] = moviesResponse.results;
 
-    return res.status(200).json({ movies });
+    return response.status(200).json({
+      movies,
+    });
   } else {
-    res.setHeader("Allow", ["POST"]);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+    response.setHeader('Allow', ['POST']);
+    response.status(405).end(`Method ${request.method} Not Allowed in here`);
   }
-}
+};
